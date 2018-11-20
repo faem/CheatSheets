@@ -88,6 +88,7 @@ like amend but for more person. history remains intake: `git revert <hash of com
 diff between 2 commit: `git diff <hash1> <hash2>`
 
 create a branch and checkout it (-b flag) `git checkout -b <branch name>` 
+<<<<<<< HEAD
 
 delete branch, must not be checked out. (-d flag): `git branch -d <branch name>`
 
@@ -101,6 +102,21 @@ puts all file from being staged to untracked: `git reset`
 
 Here mode is:
 
+=======
+
+delete branch, must not be checked out. (-d flag): `git branch -d <branch name>`
+
+toggle with previous branch: `git checkout - ` 
+
+### Reset to a branch
+
+puts all file from being staged to untracked: `git reset`
+
+`git reset --<mode> HEAD~<number>`
+
+Here mode is:
+
+>>>>>>> tempBranch
 hard (<number> of commits are deleted from HEAD)
 
 soft (<number> of commits are STAGED from HEAD)
@@ -176,3 +192,10 @@ delete tag: `git tag -d <tag name>`
 update deletion in remote: `git push origin :refs/tags/<tag name>`
 
 to make change to a previous tag make a branch first: `git checkout -b <branch name> <tag name>`
+
+
+### TODO
+
+git mergetool
+
+rebasing
