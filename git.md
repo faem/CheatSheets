@@ -34,20 +34,30 @@ shows what is changed from the first of the commit: `git diff`
 `git add *`
 
 `git add -A`
+
 `git add *.<file extension>`
+
 `git commit -m "message"`
 
+
 origin will be the cloned repository in github: `git pull origin master`
+
 push changes to remote branch (origin): `git push origin master`
 
 
 
 `git branch <branch name>`
+
 `git checkout <branch name>`
+
 `git branch`
+
 `git branch -a`
+
 `git branch --merged`
+
 `git branch -d <branch name>`
+
 `git push origin --delete <branch name>`
 
 `git merge <branch name>`
@@ -55,21 +65,32 @@ push changes to remote branch (origin): `git push origin master`
 stage all changed files and then commit. Combination of git add -a and git commit: `git commit -a -m "<commit message>"`
 
 (for 1 person) `git commit --amend -m "new message"`
+
 `git cherry-pick <hash>`
 
 reset to a commit: `git reset --soft/hard <hash of commit>`
+
 deletes all untracked file(f) and directory(d): `git clean -df` 
-`git reflog`  //compelte workthrough of all command performed
-`git revert <hash of commit>`  //like amend but for more person. history remains intake
+
+compelte workthrough of all command performed: `git reflog`
+
+like amend but for more person. history remains intake: `git revert <hash of commit>`
+
 diff between 2 commit: `git diff <hash1> <hash2>`
+
 `git clone <ssh> <dir name (optional)>`
+
 `git clone -b <branch name> <ssh> <dir name>`
+
 `git reset --hard HEAD`
 
 
 create a branch and checkout it (-b flag) `git checkout -b <branch name>` 
+
 delete branch, must not be checked out. (-d flag): `git branch -d <branch name>`
+
 toggle with previous branch: `git checkout - ` 
 
 take top stash, apply and delete: `git stash pop` 
+
 `git rebase -i`
