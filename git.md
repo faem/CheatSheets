@@ -193,6 +193,13 @@ update deletion in remote: `git push origin :refs/tags/<tag name>`
 
 to make change to a previous tag make a branch first: `git checkout -b <branch name> <tag name>`
 
+### Get all remote branch in local
+
+get all work of remote in local origin: `git fetch`
+
+checkout to get the branch in local: `git checkout <branch name>`
+
+
 
 ### TODO
 
