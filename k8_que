@@ -1,0 +1,7 @@
+1. "cloud-controller-manager runs cloud-provider-specific controller loops only. You must disable these controller loops in the kube-controller-manager. You can disable the controller loops by setting the --cloud-provider flag to external when starting the kube-controller-manager."
+
+2. If user changes something in a pod, what will happen to other pods? Eg. If I add a new user in the server using my APIserver. Will other users also see the changes? how?
+
+3. `until nslookup mydb; do echo waiting for mydb; sleep 2; done;` not working in init containers. why? how to do it? ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/#init-containers-in-use
+
+4. How to create StorageClass and what does it do? In the reference i deleted the StorageClassName field and it worked. Otherwise it gives an error: `pod has unbound PersistentVolumeClaims` ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#components

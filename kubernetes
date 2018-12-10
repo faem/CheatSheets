@@ -1,0 +1,27 @@
+minikuybe version
+minikube start
+kubectl version
+kubectl get nodes
+kubectl run <deployment name> --image=<image name>  //deployments created, 1 pod created and wth is REPLICA?
+kubectl get deployments 
+kubectl get pods
+kubectl delete pod <pod name> //this deletes a pod, but a pod is instantly created
+kubectl expose deployment <deployment name> --type=LoadBalancer --port=<port given in dockerfile expose> //creates a service which is exposed at a port
+kubectl get services
+minkube service <service name (same as deployment name)> --url //get the service url
+minikube dashboard 
+kubectl cluster-info
+kubectl logs <pod name> //get the log of the pods
+kubectl describe <resource name (deployment, pods, services)> [-l run=<deployment name>]
+kubectl describe <resource name (deployment, pods, services)>/<name of the instance of this resource>
+curl http://localhost:8001/api/v1/namespaces/default/pods/<pod name>/proxy/ //to get response from a specific pod
+kubectl exec //don't understand
+kubectl exec -ti <pod name> sh //get to the shell of the container
+kubectl exec -ti <pod name> wget localhost:8080 //to check if the api is running inside the container
+curl $(minikube service api --url)/<any page>
+kubectl scale deployment/<deployment name> --replicas = <no of pod replica>
+kubectl get pods -o wide //to see the IP and NODE of the pods
+kubectl set image deployments/<deployment name> <deployment name>=<new image>
+kubectl rollout status deployments/<deployment name>
+kubectl rollout undo deployments/<deployment name>
+kubectl get namespaces
