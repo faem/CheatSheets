@@ -720,3 +720,160 @@ kubectl edit deployment/<name>
     - any connecton to this(proxy) port will be proxied to the one of service’s backend pods
     - it installs iptable rules which caputre traffic to the service’s clsuterIP and port
     - then redicects that traffic to the proxy port which proxies the backend pods
+
+### Service without selector
+- cases for using service without cluster
+    - You want to have an external database cluster in production, but in test you use your own databases.
+    - You want to point your service to a service in another Namespace or on another cluster.
+    - You are migrating your workload to Kubernetes and some of your backends run outside of Kubernetes.
+- Example:
+    - 
+    ```
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: my-service
+    spec:
+      ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 9376
+    ```
+- This service has no selector
+- so the corresponding endpoints will not be created
+- manually map the endpoints as follows:
+    ```
+      kind: Endpoints
+      apiVersion: v1
+      metadata:
+        name: my-service
+      subsets:
+        - addresses:
+            - ip: 1.2.3.4
+          ports:
+            - port: 9376
+      ```
+### Discovering Service
+- Environment variables
+- DNS
+
+### Round-Robin DNS
+- a simple technique of load balancing various Internet services such as Web server, e-mail server by creating multiple DNS A records with the same name.
+- For example, foo.dnsknowledge.com may be configured to return two IP address as follows:
+```
+  foo.dnsknowledge.com – 202.54.1.2
+  foo.dnsknowledge.com – 202.54.1.3
+```
+- Half of the time when a user make foo.dnsknowledge.com request will go to 202.54.1.2 and rest will go to 202.54.1.3. 
+- In other words, all clients would receive service from two different server, thus distributing the overall load among servers.
+
+### why virtual IP without RR DNS?
+- There is a long history of DNS libraries not respecting DNS TTLs and caching the results of name lookups.
+- Many apps do DNS lookups once and cache the results.
+- Even if apps and libraries did proper re-resolution, the load of every client re-resolving DNS over and over would be difficult to manage.
+
+### Headless Service
+- none in the clusterIP filed creates a Headless service
+- when loadBalancing and single ip service is not needed, headless service is used
+- cluster IP is not allowed
+- kube proxy doesn't handle these serviceszaq
+- with selector:
+    - creates endpoint record
+- without selector:
+    - doesn't create endpoint record
+
+### Publishing services
+- For some parts of your application (e.g. frontends) you may want to expose a Service onto an external (outside of your cluster) IP address.
+
+#### ClusterIP:
+- Exposes the service on a cluster internal IP.
+- Choosing this value makes the service only reachable from the cluster
+- this is default service type
+
+#### NodePort:
+- Exposes the service on each Node’s IP at a static port (the NodePort)
+- master allocates a port from specified range 
+- each node will proxy that port in the service
+- specific ip can be set to proxy the port via --nodeport-addresses
+- a clusterIP service, to which the nodeport service will route, is automatically created
+- node port service can be accessed from the outside of the cluster. <NODE_PORT>:<NODE_IP>
+
+#### LoadBalancer:
+- Exposes the service externally using a cloud provider’s load balancer. NodePort and ClusterIP services, 
+- setting the type field to LoadBalancer will provision a load balancer for the Service
+- The actual creation of the load balancer happens asynchronously
+- Traffic from the external load balancer will be directed at the backend Pods
+- 
+
+#### ExternalName:
+- Maps the service to the contents of the externalName field (e.g. foo.bar.example.com), by returning a CNAME record with its value
+- Services of type ExternalName map a service to a DNS name rather than to a typical selector
+- example:
+    ```
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: my-service
+      namespace: prod
+    spec:
+      type: ExternalName
+      externalName: my.database.example.com
+    ```
+    - This Service definition, for example, would map the my-service Service in the prod namespace to my.database.example.com.
+
+---------------------------------------------------------------------------------------------------------------
+
+## DNS for services and pods:
+- Kubernetes DNS schedules a DNS Pod and Service on the cluster, and configures the kubelets to tell individual containers to use the DNS Service’s IP to resolve DNS names.
+
+### What gets DNS names?
+- every service defined in the cluster
+- Assume a Service named foo in the Kubernetes namespace bar. A Pod running in namespace bar can look up this service by simply doing a DNS query for foo. A Pod running in namespace quux can look up this service by doing a DNS query for foo.bar.
+
+### Services
+- A records:
+    - Normal (not headless) services are assigned a DNS record of the form `my-svc.my-namespace.svc.cluster.local`
+    - this resolves to the cluster IP of the service
+    - Headless services are also assigned a DNS record for a name of the form `my-svc.my-namespace.svc.cluster.local`
+    - Unlike normal Services, this resolves to the set of IPs of the pods selected by the Service
+- SRV records:
+    - SRV records are created for named ports that are part of normal/headless service
+    - for named port, `_my-port-name._my-port-protocol.my-svc.my-namespace.svc.cluster.local`
+    - this resolves to `my-svc.my-namespace.svc.cluster.local`
+    - for headless service, this resolves to a set of IPs of the pod
+    - contains the port number and the domain name of the pod auto-generated-name.my-svc.my-namespace.svc.cluster.local
+
+### Pods
+- A records:
+    - pods are assigned a DNS of form `pod-ip-address.my-namespace.pod.cluster.local`
+
+#### Pod's hostname and subdomain
+- when pods are created, hostname is metadata.name
+- optional hostname field is exist in PodSpec
+- when specified, takes precedence over pod’s name to be the hostname
+- also have subdomain field
+- pod with hostname > foo and subdomain > bar in namespace my-namespace, DNS foo.bar.my-namespace.svc.cluser.local
+
+#### Pod DNS policies
+- _Default_: The Pod inherits the name resolution configuration from the node that the pods run on. See related discussion for more details.
+- _ClusterFirst_: Any DNS query that does not match the configured cluster domain suffix, such as “www.kubernetes.io”, is forwarded to the upstream nameserver inherited from the node. Cluster administrators may have extra stub-domain and upstream DNS servers configured. See related discussion for details on how DNS queries are handled in those cases.
+- _ClusterFirstWithHostNet_: For Pods running with hostNetwork, you should explicitly set its DNS policy “ClusterFirstWithHostNet”.
+- _None_: A new option value introduced in Kubernetes v1.9 (Beta in v1.10). It allows a Pod to ignore DNS settings from the Kubernetes environment. All DNS settings are supposed to be provided using the dnsConfig field in the Pod Spec. See DNS config subsection below.
+
+#### Pod’s DNS Config
+
+-----------------------------------------------------------------------------------------------------------------
+
+
+### Exposing pods to cluster
+
+### Creating a service
+
+### Accessing a service
+
+### Securing the service
+
+### Exposing the service
+
+-----------------------------------------------------------------------------------------------------------------
+

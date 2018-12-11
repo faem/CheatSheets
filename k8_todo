@@ -2,3 +2,4 @@ https://kubernetes.io/docs/concepts/overview/kubernetes-api/
 https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
 https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/
 https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/
+https://kubernetes.io/docs/concepts/services-networking/service/#virtual-ips-and-service-proxies

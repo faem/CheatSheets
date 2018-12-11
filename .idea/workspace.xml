@@ -2,16 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="85a93892-5c1d-4dce-9494-5c86a48de0c1" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/CheatSheets.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/k8_Concept.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/k8_que" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/k8_todo" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/kubernetes" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8_Concept.md" beforeDir="false" afterPath="$PROJECT_DIR$/k8_Concept.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/k8_todo" beforeDir="false" afterPath="$PROJECT_DIR$/k8_todo" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,12 +19,17 @@
         <entry file="file://$PROJECT_DIR$/k8_Concept.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="571">
-                <caret line="618" column="78" lean-forward="true" selection-start-line="618" selection-start-column="78" selection-end-line="618" selection-end-column="78" />
+              <first_editor relative-caret-position="146">
+                <caret line="838" column="14" lean-forward="true" selection-start-line="838" selection-start-column="14" selection-end-line="838" selection-end-column="14" />
               </first_editor>
               <second_editor />
             </state>
           </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test.yaml">
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
@@ -40,18 +39,14 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/k8_todo">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
-            </state>
-          </provider>
+          <provider selected="true" editor-type-id="text-editor" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/k8_que">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="102">
-              <caret line="6" column="276" selection-start-line="6" selection-start-column="276" selection-end-line="6" selection-end-column="276" />
+              <caret line="6" column="200" selection-start-line="6" selection-start-column="200" selection-end-line="6" selection-end-column="200" />
             </state>
           </provider>
         </entry>
@@ -65,6 +60,7 @@
       <find>create</find>
       <find>yaml</find>
       <find>kubectl pr</find>
+      <find>types of</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -81,14 +77,15 @@
         <option value="$PROJECT_DIR$/kubernetes" />
         <option value="$PROJECT_DIR$/k8_que" />
         <option value="$PROJECT_DIR$/k8_todo" />
+        <option value="$PROJECT_DIR$/test.yaml" />
         <option value="$PROJECT_DIR$/k8_Concept.md" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="69" />
-    <option name="y" value="73" />
-    <option name="width" value="1380" />
+    <option name="x" value="67" />
+    <option name="y" value="55" />
+    <option name="width" value="1370" />
     <option name="height" value="1000" />
   </component>
   <component name="ProjectView">
@@ -106,7 +103,7 @@
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Markdown" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -151,7 +148,7 @@
       <window_info anchor="bottom" id="Docker" order="7" weight="0.32937366" />
       <window_info anchor="bottom" id="Database Changes" order="8" />
       <window_info anchor="bottom" id="Version Control" order="9" weight="0.32937366" />
-      <window_info anchor="bottom" id="Terminal" order="10" weight="0.32937366" />
+      <window_info anchor="bottom" id="Terminal" order="10" weight="0.3286638" />
       <window_info anchor="bottom" id="Event Log" order="11" side_tool="true" weight="0.32937366" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -167,25 +164,24 @@
     <entry file="file://$PROJECT_DIR$/kubernetes">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file://$PROJECT_DIR$/k8_todo">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/k8_que">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
-          <caret line="6" column="276" selection-start-line="6" selection-start-column="276" selection-end-line="6" selection-end-column="276" />
+          <caret line="6" column="200" selection-start-line="6" selection-start-column="200" selection-end-line="6" selection-end-column="200" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/k8_todo">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/test.yaml">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/k8_Concept.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="571">
-            <caret line="618" column="78" lean-forward="true" selection-start-line="618" selection-start-column="78" selection-end-line="618" selection-end-column="78" />
+          <first_editor relative-caret-position="146">
+            <caret line="838" column="14" lean-forward="true" selection-start-line="838" selection-start-column="14" selection-end-line="838" selection-end-column="14" />
           </first_editor>
           <second_editor />
         </state>
