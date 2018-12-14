@@ -2,12 +2,12 @@ minikuybe version
 minikube start
 kubectl version
 kubectl get nodes
-kubectl run <deployment name> --image=<image name>  //deployments created, 1 pod created and wth is REPLICA?
+kubectl run <deployment name> --image=<image name>  //deployments created, 1 pod created
 kubectl get deployments 
 kubectl get pods
 kubectl delete pod <pod name> //this deletes a pod, but a pod is instantly created
-kubectl expose deployment <deployment name> --type=LoadBalancer --port=<port given in dockerfile expose> //creates a service which is exposed at a port
-kubectl get services
+kubectl expose deployment <deployment name> --type=LoadBalancer --port=<port given in dockerfile expose> //creates a service which is exposed at a port, must provide port
+kubectl get services/
 minkube service <service name (same as deployment name)> --url //get the service url
 minikube dashboard 
 kubectl cluster-info
@@ -25,3 +25,5 @@ kubectl set image deployments/<deployment name> <deployment name>=<new image>
 kubectl rollout status deployments/<deployment name>
 kubectl rollout undo deployments/<deployment name>
 kubectl get namespaces
+<command> | grep <keyword> //searches the keyword in <command>s result and return the matched line
+minikube ssh //shell inside the minikube node

@@ -383,21 +383,32 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  name: myapp-pod
+  name: initonservice
   labels:
-    app: myapp
+    app: initonservice
 spec:
   containers:
-  - name: myapp-container
-    image: busybox
-    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+    - name: initonservice
+      image: busybox
+      command:
+        - sh
+        - -c
+        - while true; do echo app is running; sleep 1; done
+      imagePullPolicy: IfNotPresent
   initContainers:
-  - name: init-myservice
-    image: busybox
-    command: ['sh', '-c', 'until nslookup myservice; do echo waiting for myservice; sleep 2; done;']
-  - name: init-mydb
-    image: busybox
-    command: ['sh', '-c', 'until nslookup mydb; do echo waiting for mydb; sleep 2; done;']
+    - name: init-myservice
+      image: ubuntu
+      command:
+        - sh
+        - -c
+        - "apt-get update; apt-get install dnsutils -y; until nslookup myservice; do echo waiting for myservice; sleep 2; done"
+    - name: init-mydb
+      image: ubuntu
+      command:
+        - sh
+        - -c
+        - "apt-get update; apt-get install dnsutils -y; until nslookup mydb; do echo waiting for mydb; sleep 2; done"
+  restartPolicy: Always
 ```
 
 ### use of init container
@@ -864,16 +875,322 @@ kubectl edit deployment/<name>
 
 -----------------------------------------------------------------------------------------------------------------
 
-
 ### Exposing pods to cluster
 
 ### Creating a service
 
 ### Accessing a service
-
+- Two ways:
+- *Environment Var*:
+    - When a Pod runs on a Node, the kubelet adds a set of environment variables for each active Service.
+    - If the service is created after the pods are created then environment variables are not created
+    - In that case, first delete all the pods, while the service is running and the create pods again.
+    - Then the env var will set auto by deployment
+    - Commands:
+        ```
+        kubectl scale deployment <name> --replicas=0; //deletes all the pods 
+        kubectl scale deployment <name> --replicas=2; //recreates again
+    ```
+- *DNS*
 ### Securing the service
-
+- To secure a service before exposing it, we need to do:
+    - Self signed certificates for https
+    - An nginx server configured to use the certificates
+    - A secret that makes the certificates accessible to pods
+    - Example: https://github.com/kubernetes/examples/tree/master/staging/https-nginx/
 ### Exposing the service
 
 -----------------------------------------------------------------------------------------------------------------
 
+## Ingress
+- An ingress is a set of rules that allows inbound connections to reach the kubernetes cluster services.
+- It is like a door to the cluster
+- Kubernetes clusters are firewalled from the internet.
+- It has edge routers enforcing the firewall.
+- svc, pods are not directly accessible outside the cluster 
+- All traffic that ends up at an edge router is either dropped or forwarded elsewhere.
+- Ingress defines some rules for external traffic to route them to kubernetes endpoints
+- What ingress looks like:
+![What ingress looks like](https://cdn-images-1.medium.com/max/1400/1*RX1ZjiDaXIChc2b_5OYIww.png "How ingress works")
+- Here, S=Service, P=Pod, N=Node.
+- Example:
+    ```yaml
+    apiVersion: extensions/v1beta1
+    kind: Ingress
+    metadata:
+      name: ingress-tutorial
+      annotations:
+        nginx.ingress.kubernetes.io/rewrite-target: /
+    spec:
+      backend:
+        serviceName: default-http-backend
+        servicePort: 80
+      rules:
+      - host: myminikube.info
+        http:
+          paths:
+          - path: /
+            backend:
+              serviceName: echoserver
+              servicePort: 8080
+      - host: cheeses.all
+        http:
+          paths:
+          - path: /stilton
+            backend:
+              serviceName: stilton-cheese
+              servicePort: 80
+          - path: /cheddar
+            backend:
+              serviceName: cheddar-cheese
+              servicePort: 80
+    ```
+    - All requests to myminikube.info is routed to the service echoserver
+    - requests mapping to cheeses.all/stilton is routed to the stilton-cheese service
+    - requests mapping to cheeses.all/cheddar is routed to the cheddar-cheese service.
+    - backend tag implies all unmatched tag should be routed to default-http-backend
+    - Annotation : 
+        - `ingress.kubernetes.io/rewrite-target: /` this annotation is necessary if the target services expect requests from URL i.e cheeses.all and not cheeses.all/stilton
+        - if the service doesn't accept request on that path a 403 error is given. 
+        - rewrite-target is rewritten with the given path before the request get's forwarded to the target backend
+
+### Ingress Controller
+- in order to ingress resources to work, cluster must have an ingress controller running
+- when a user requests an ingress by POSTing an ingress resource to the API server, the ingress server is responsible for fulfilling the ingress requests, usually with a loadbalancer
+- It may also configure the edge routers or additional front ends to help handle traffic.
+- without IC there is no use of creating ingress resources
+- IC can be written by own
+- But no need as third party controllers are available
+
+
+### Setting up ingress in minkube
+- To run the above example of ingress on minikube, follow the below commands:
+    ```
+    //to enable ingress in minikube
+    minikube addons enable ingress
+    
+    //run echoserver service
+    kubectl run echoserver --image=gcr.io/google_containers/echoserver:1.4 --port=8080
+    kubectl expose deployment echoserver --type=NodePort
+    
+    //run stilton-cheese
+    kubectl run stilton-cheese --image=errm/cheese:stilton --port=80
+    kubectl expose deployment stilton-cheese --type=NodePort
+    
+    //run cheddar-cheese service
+    kubectl run cheddar-cheese --image=errm/cheese:cheddar --port=80
+    kubectl expose deployment cheddar-cheese --type=NodePort
+    
+    //create the ingress resource
+    kubectl create -f ingress-tutorial.yaml
+    
+    //add the hostname in /etc/hosts to access the hostname from pc via minikube
+    echo "$(minikube ip) myminikube.info cheeses.all" | sudo tee -a /etc/hosts
+    ```
+
+- now test the ingress out by visiting `myminikube.info` , `cheeses.all/stilton` , `cheeses.all/cheddar` from your browser.
+
+### Updating ingress
+- `kubectl edit ingress <name>`
+
+
+### Types of ingress
+- Single Service Ingress:
+- Simple fanout
+
+-------------------------------------------------------------------------------------------------------------
+## NetworkPolicies
+- specificaiton about how groups of pods are allowed to communicate with each other and other network endpoints
+- use labels to select pods and define reules which specify what traffic is allowd to the selected pods
+- by default pods are non isolated, accept traffic from any source
+- becomes isolated by having a network policy that selects them
+- then the pod will reject nay connection that are not allowed by the policy
+
+### NetworkPolicy Resource
+- 
+- Example:
+    ```
+    apiVersion: networking.k8s.io/v1
+    kind: NetworkPolicy
+    metadata:
+      name: test-network-policy
+      namespace: default
+    spec:
+      podSelector:
+        matchLabels:
+          role: db
+      policyTypes:
+      - Ingress
+      - Egress
+      ingress:
+      - from:
+        - ipBlock:
+            cidr: 172.17.0.0/16
+            except:
+            - 172.17.1.0/24
+        - namespaceSelector:
+            matchLabels:
+              project: myproject
+        - podSelector:
+            matchLabels:
+              role: frontend
+        ports:
+        - protocol: TCP
+          port: 6379
+      egress:
+      - to:
+        - ipBlock:
+            cidr: 10.0.0.0/24
+        ports:
+        - protocol: TCP
+          port: 5978
+    ```
+- Mandatory Fields: As with all other Kubernetes config, a NetworkPolicy needs apiVersion, kind, and metadata fields. For general information about working with config files, see Configure Containers Using a ConfigMap, and Object Management.
+  
+- spec: NetworkPolicy spec has all the information needed to define a particular network policy in the given namespace.
+  
+- podSelector: Each NetworkPolicy includes a podSelector which selects the grouping of pods to which the policy applies. The example policy selects pods with the label “role=db”. An empty podSelector selects all pods in the namespace.
+  
+- policyTypes: Each NetworkPolicy includes a policyTypes list which may include either Ingress, Egress, or both. The policyTypes field indicates whether or not the given policy applies to ingress traffic to selected pod, egress traffic from selected pods, or both. If no policyTypes are specified on a NetworkPolicy then by default Ingress will always be set and Egress will be set if the NetworkPolicy has any egress rules.
+  
+- ingress: Each NetworkPolicy may include a list of whitelist ingress rules. Each rule allows traffic which matches both the from and ports sections. The example policy contains a single rule, which matches traffic on a single port, from one of three sources, the first specified via an ipBlock, the second via a namespaceSelector and the third via a podSelector.
+  
+- egress: Each NetworkPolicy may include a list of whitelist egress rules. Each rule allows traffic which matches both the to and ports sections. The example policy contains a single rule, which matches traffic on a single port to any destination in 10.0.0.0/24.
+  
+- So, the example NetworkPolicy:
+    - isolates “role=db” pods in the “default” namespace for both ingress and egress traffic (if they weren’t already isolated)
+    - allows connections to TCP port 6379 of “role=db” pods in the “default” namespace from:
+        - any pod in the “default” namespace with the label “role=frontend”
+        - any pod in a namespace with the label “project=myproject”
+        - IP addresses in the ranges 172.17.0.0–172.17.0.255 and 172.17.2.0–172.17.255.255 (ie, all of 172.17.0.0/16 except 172.17.1.0/24)
+    - allows connections from any pod in the “default” namespace with the label “role=db” to CIDR 10.0.0.0/24 on TCP port 5978
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+## Persistent Volume
+- a subsystem that provides an API to the users and admin that abstracts how storage is provided from how it is consumed
+- PersistentVolume:
+    - is a piece of storage in the cluster that has been provisioned by an admin
+    - is a resource in the cluster just like a node is a resource
+    - have a lifecycle independent of any individual pod that uses the PV
+- PersistentVolumeClaim:
+    - is a request for storage by a user
+    - similar to a pod
+    - pods consumes node resource and PVC consumes PV resources
+    - Pods can request specific CPU or memory and PVC can request specific size and access modes
+
+### Lifecycle of volumes and claim
+- Provisioning
+    - Static provision
+    - dynamic provision
+- Binding
+    - a control loop in the master watches for new PVCs and finds a matching PV if possible and bind them together
+    - if a PV was dynamically provisioned then the control loop will always bind that PV to that PVC.
+    - PVC and PV binding are one to one mapping
+- Using
+    - pods use claims as volumes
+    - once a user claim and that claim is bound, the PV belongs to the user as long as they need
+- Reclaiming:
+    - when user is done with their volume, they can delete the PVC object which allows the reclaimation of the resource
+    - volumes can be:
+        - Retain:
+            -  PVC is deleted but PV still exists and considered released
+            -  The PV can be reclaimed
+        - Delete
+            - removes both PV and associated storage asset
+ ### PV
+ - Example:
+    ```yaml
+    apiVersion: v1
+       kind: PersistentVolume
+       metadata:
+         name: pv0003
+       spec:
+         capacity:
+           storage: 5Gi
+         volumeMode: Filesystem
+         accessModes:
+           - ReadWriteOnce
+         persistentVolumeReclaimPolicy: Recycle
+         storageClassName: slow
+         mountOptions:
+           - hard
+           - nfsvers=4.1
+         nfs:
+           path: /tmp
+           server: 172.17.0.2
+    ```
+    - volumeMode : 
+        - `raw` to use raw block
+        - `filesystem` to use filesystem, default
+    - Access mode:
+        - ReadWriteOnce – the volume can be mounted as read-write by a single node
+        - ReadOnlyMany – the volume can be mounted read-only by many nodes
+        - ReadWriteMany – the volume can be mounted as read-write by many nodes
+    - Class:
+        - storage class
+    - Reclaim policy:
+        - Retain/ Delete
+    - node affinity
+        - which nodes this volume can be accessed from
+    - Phase
+        - Available - not bound to claim
+        - bound - bound to clai,
+        - released - deleted but not reclaimed by the cluster
+        - failed - failed auto reclaimation
+    
+### PVC
+- Example:
+    ```yaml
+    kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: myclaim
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      volumeMode: Filesystem
+      resources:
+        requests:
+          storage: 8Gi
+      storageClassName: slow
+      selector:
+        matchLabels:
+          release: "stable"
+        matchExpressions:
+          - {key: environment, operator: In, values: [dev]}
+    ```
+    - Resource
+        - size of disk
+    - selector:
+       - matchLabels - the volume must have a label with this value
+       - matchExpressions - a list of requirements made by specifying key, list of values, and operator that relates the key and values. Valid operators include In, NotIn, Exists, and DoesNotExist.
+
+### Claims as volume
+- Example:
+    ```yaml
+    kind: Pod
+    apiVersion: v1
+    metadata:
+      name: mypod
+    spec:
+      containers:
+        - name: myfrontend
+          image: nginx
+          volumeMounts:
+          - mountPath: "/var/www/html"
+            name: mypd
+      volumes:
+        - name: mypd
+          persistentVolumeClaim:
+            claimName: myclaim
+    ```    
+    - Pods access storage by using claim as voume
+    - claims must exist in the same namespace
+    
+-----------------------------------------------------------------------------------------------------------------------
+
+## Volume Snap Shot
+- A VolumeSnapshotContent is a snapshot taken from a volume in the cluster that has been provisioned by an administrator. It is a resource in the cluster just like a PersistentVolume is a cluster resource.
+- A VolumeSnapshot is a request for snapshot of a volume by a user. It is similar to a PersistentVolumeClaim.
